@@ -17,24 +17,7 @@ declare var Cookies:any;
 declare var window: any;
 declare module JSX {
     interface IntrinsicElements {
-        "DAIframe": DAIframe,
         "AddinApp": AddinApp
-    }
-}
-
-export class DAIframe extends React.Component<any, any> {
-    componentDidMount() {
-        var server : any = document.getElementById('server');
-        var doc = server.contentDocument;
-        doc.open();
-        doc.write('<html><head><title></title></head><body>Loading...</body></html>');
-        doc.close();
-        server.src = this.props.serverName + '/officeaddin';
-        server.setAttribute('height', '1200');
-        server.style.height = "1200px";
-    }
-    render() {
-        return <iframe height="1200" id="server" className={ this.props.showFrame ? 'shownelement' : 'hiddenelement' }></iframe>;
     }
 }
 
@@ -45,7 +28,7 @@ class AddinApp extends React.Component<any, any> {
         this.state = {
             showServerName: serverName ? false : true,
             showServerNameError: false,
-            showIframe: serverName ? true : false,
+            frameStage: serverName ? "wait" : "standby",
             serverName: serverName,
             showApp: false,
             interviewList: [],
@@ -86,13 +69,13 @@ class AddinApp extends React.Component<any, any> {
                         onClick={ this.handleSetServer }
                     />
                 </div>
-                <DAIframe serverName={ this.state.serverName } showFrame={ this.state.showIframe } />
-                <main id="app-body" className={ this.state.showApp ? 'ms-welcome__main' : 'hiddenElement' }>
+                <iframe id="server" src={ this.state.serverName ? this.state.serverName + '/officeaddin' : 'about:blank'} className={ this.state.frameStage == "wait" ? 'shownelement' : 'hiddenelement' } />
+                <main id="app-body" className={ this.state.showApp ? 'ms-welcome__main' : 'hiddenelement' }>
                     <Dropdown
                         label='Interview'
                         onChanged={ this.handleInterviewChange }
                         options={ this.state.interviewOptions }
-                        defaultSelectedKey={ this.state.currentInterview }
+
                     />
                     <h2 className="ms-font-xl">Insert Variables</h2>
                     <ComboBox
@@ -185,7 +168,7 @@ class AddinApp extends React.Component<any, any> {
             this.setState({showServerNameError: false});
         }
         Cookies.set('serverName', this.state.serverName, { expires: 999999 });
-        this.setState({showIframe: true, showServerName: false});
+        this.setState({frameStage: 'wait', showServerName: false});
     }
 
     varChanged = (option: IComboBoxOption, index: number, value: string): void => {
@@ -230,7 +213,7 @@ class AddinApp extends React.Component<any, any> {
         }
         console.log("Received action " + event.data.action);
         if (event.data.action == 'initialize') {
-            this.setState({showApp: true, showIframe: false});
+            this.setState({showApp: true, frameStage: 'loaded'});
             this.fetchFiles();
         }
         if (event.data.action == 'files') {
@@ -483,9 +466,9 @@ function validateUrl(value: string) {
     return /^https?:\/\/\S/i.test(value);
 }
 
-Office.initialize = () => {
+//Office.initialize = () => {
     ReactDOM.render(
         <AddinApp />,
         document.getElementById("app")
     );
-}
+//}

@@ -4,15 +4,15 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 let plugins = [
   new HtmlWebpackPlugin({
-    chunks: ['index'],
-    filename: 'index.html',
-    template: path.join(__dirname, 'public', 'index.html')
+    chunks: ['oldindex'],
+    filename: 'oldindex.html',
+    template: path.join(__dirname, 'public', 'oldindex.html')
   }),
   new HtmlWebpackPlugin({
     inject: false,
-    chunks: ['index2'],
-    filename: 'index2.html',
-    template: path.join(__dirname, 'public', 'index2.html')
+    chunks: ['index'],
+    filename: 'index.html',
+    template: path.join(__dirname, 'public', 'index.html')
   })
 ]
 
@@ -27,8 +27,8 @@ if (process.env.NODE_ENV === 'production') {
 module.exports = {
   mode: 'production',
   entry: {
-    index: path.join(__dirname, 'src', 'index.js'),
-    index2: path.join(__dirname, 'src', 'index2.tsx'),
+    oldindex: path.join(__dirname, 'src', 'index.js'),
+    index: path.join(__dirname, 'src', 'index2.tsx'),
   },
   output: {
     path: path.resolve('build'),
